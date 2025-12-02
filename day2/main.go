@@ -35,19 +35,25 @@ func parse(input string) []segment {
 	return ranges
 }
 
-func part1(ranges []segment) int {
+func sumValid(ranges []segment, check func(int) bool) int {
 	sol := 0
 
 	for _, seg := range ranges {
 		for n := seg.begin; n <= seg.end; n++ {
-			str := strconv.Itoa(n)
-			if str[0:len(str)/2] == str[len(str)/2:] {
+			if check(n) {
 				sol += n
 			}
 		}
 	}
 
 	return sol
+}
+
+func part1(ranges []segment) int {
+	return sumValid(ranges, func(n int) bool {
+		str := strconv.Itoa(n)
+		return str[0:len(str)/2] == str[len(str)/2:]
+	})
 }
 
 func check(n string, sub string) bool {
@@ -64,21 +70,15 @@ func check(n string, sub string) bool {
 }
 
 func part2(ranges []segment) int {
-	sol := 0
-
-	for _, seg := range ranges {
-		for n := seg.begin; n <= seg.end; n++ {
-			str := strconv.Itoa(n)
-			for l := 1; l <= len(str)/2; l++ {
-				if check(str, str[0:l]) {
-					sol += n
-					break
-				}
+	return sumValid(ranges, func(n int) bool {
+		str := strconv.Itoa(n)
+		for l := 1; l <= len(str)/2; l++ {
+			if check(str, str[0:l]) {
+				return true
 			}
 		}
-	}
-
-	return sol
+		return false
+	})
 }
 
 func main() {
