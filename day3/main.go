@@ -63,12 +63,11 @@ func dfs(cache map[state]*list.List, bank []int, s state) *list.List {
 
 	taken := list.New()
 	taken.PushFront(fst)
-	taken_l := dfs(cache, bank, state{
+	if takenList := dfs(cache, bank, state{
 		remaining: s.remaining - 1,
 		offset:    s.offset + 1,
-	})
-	if taken_l != nil {
-		taken.PushBackList(taken_l)
+	}); takenList != nil {
+		taken.PushBackList(takenList)
 	}
 	missed := dfs(cache, bank, state{
 		remaining: s.remaining,
