@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"fmt"
 	"log"
 	"os"
@@ -31,44 +32,51 @@ type state = struct {
 	offset    int
 }
 
-func dfs(cache map[state]string, bank []int, s state) string {
+func toNum(l *list.List) int {
+	if l == nil {
+		return 0
+	}
+	n := 0
+	for v := l.Front(); v != nil; v = v.Next() {
+		n = n*10 + v.Value.(int)
+	}
+	return n
+}
+
+func dfs(cache map[state]*list.List, bank []int, s state) *list.List {
 	sol, hit := cache[s]
 	if hit {
 		return sol
 	}
 
 	if len(bank)-s.offset < s.remaining {
-		return ""
+		return nil
 	}
 	if len(bank) == s.offset {
-		return ""
+		return nil
 	}
 	if s.remaining == 0 {
-		return ""
+		return nil
 	}
 
 	fst := bank[s.offset]
 
-	taken := fmt.Sprint(fst) + dfs(cache, bank, state{
+	taken := list.New()
+	taken.PushFront(fst)
+	taken_l := dfs(cache, bank, state{
 		remaining: s.remaining - 1,
 		offset:    s.offset + 1,
 	})
+	if taken_l != nil {
+		taken.PushBackList(taken_l)
+	}
 	missed := dfs(cache, bank, state{
 		remaining: s.remaining,
 		offset:    s.offset + 1,
 	})
 
-	a, err := strconv.Atoi(taken)
-	if err != nil {
-		a = 0
-	}
-	b, err := strconv.Atoi(missed)
-	if err != nil {
-		b = 0
-	}
-
-	var res string
-	if a > b {
+	var res *list.List
+	if toNum(taken) > toNum(missed) {
 		res = taken
 	} else {
 		res = missed
@@ -81,13 +89,9 @@ func dfs(cache map[state]string, bank []int, s state) string {
 func greatestNum(banks [][]int, depth int) int {
 	sol := 0
 	for _, bank := range banks {
-		cache := make(map[state]string)
+		cache := make(map[state]*list.List)
 		max := dfs(cache, bank, state{depth, 0})
-		n, err := strconv.Atoi(max)
-		if err != nil {
-			log.Fatal(err)
-		}
-		sol += n
+		sol += toNum(max)
 	}
 	return sol
 }
