@@ -26,23 +26,6 @@ func parse(input string) [][]int {
 	return banks
 }
 
-func part1(banks [][]int) int {
-	sol := 0
-	for _, bank := range banks {
-		max := 0
-		for a := 0; a < len(bank); a++ {
-			for b := a + 1; b < len(bank); b++ {
-				c := bank[a]*10 + bank[b]
-				if c > max {
-					max = c
-				}
-			}
-		}
-		sol += max
-	}
-	return sol
-}
-
 type state = struct {
 	remaining int
 	offset    int
@@ -95,11 +78,11 @@ func dfs(cache map[state]string, bank []int, s state) string {
 	return res
 }
 
-func part2(banks [][]int) int {
+func greatestNum(banks [][]int, depth int) int {
 	sol := 0
 	for _, bank := range banks {
 		cache := make(map[state]string)
-		max := dfs(cache, bank, state{12, 0})
+		max := dfs(cache, bank, state{depth, 0})
 		n, err := strconv.Atoi(max)
 		if err != nil {
 			log.Fatal(err)
@@ -107,6 +90,14 @@ func part2(banks [][]int) int {
 		sol += n
 	}
 	return sol
+}
+
+func part1(banks [][]int) int {
+	return greatestNum(banks, 2)
+}
+
+func part2(banks [][]int) int {
+	return greatestNum(banks, 12)
 }
 
 func main() {
