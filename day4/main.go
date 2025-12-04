@@ -33,6 +33,24 @@ func charAt(grid [][]rune, x int, y int) rune {
 	return line[x]
 }
 
+func countNeighbors(grid [][]rune, x int, y int) int {
+	c := 0
+
+	for i := -1; i <= 1; i++ {
+		for j := -1; j <= 1; j++ {
+			if i == 0 && j == 0 {
+				continue
+			}
+
+			if charAt(grid, x+i, y+j) == '@' {
+				c++
+			}
+		}
+	}
+
+	return c
+}
+
 type xy = struct {
 	x int
 	y int
@@ -44,21 +62,7 @@ func accessibleRoles(grid [][]rune) []xy {
 	for y, gridLine := range grid {
 		for x := range gridLine {
 			if charAt(grid, x, y) == '@' {
-				c := 0
-
-				for i := -1; i <= 1; i++ {
-					for j := -1; j <= 1; j++ {
-						if i == 0 && j == 0 {
-							continue
-						}
-
-						if charAt(grid, x+i, y+j) == '@' {
-							c++
-						}
-					}
-				}
-
-				if c < 4 {
+				if countNeighbors(grid, x, y) < 4 {
 					pos = append(pos, xy{x, y})
 				}
 			}
