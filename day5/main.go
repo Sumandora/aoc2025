@@ -72,29 +72,29 @@ func part2(data data) int {
 	}
 
 	sort.Slice(data.ranges, func(i, j int) bool {
-		return data.ranges[i].from > data.ranges[j].from
+		return data.ranges[i].from < data.ranges[j].from
 	})
 
-	for i := 0; i < len(data.ranges); i++ {
-		curr := data.ranges[i]
-		full_overlap := false
-		for j := i + 1; j < len(data.ranges); j++ {
-			other := data.ranges[j]
-			if curr.from >= other.from && curr.end <= other.end {
-				full_overlap = true
-				break
-			}
-			if curr.from >= other.from && curr.from <= other.end {
-				curr.from = other.end
-			}
-			if curr.end >= other.from && curr.end <= other.end {
-				curr.end = other.from
-			}
-		}
-		if full_overlap {
+	var newRanges []span
+	for i, seg := range data.ranges {
+		if i == 0 {
+			newRanges = append(newRanges, seg)
 			continue
 		}
-		c += curr.end - curr.from
+
+		last := &newRanges[len(newRanges)-1]
+		if last.end > seg.from {
+			if last.end > seg.end {
+				continue
+			}
+			last.end = max(seg.end, last.end)
+			seg.from = last.end
+		}
+		newRanges = append(newRanges, seg)
+	}
+
+	for _, seg := range newRanges {
+		c += seg.end - seg.from
 	}
 
 	return c
