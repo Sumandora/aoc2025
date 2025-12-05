@@ -1,1 +1,3 @@
 # AOC 2025 in Go
+
+Learning Go with this...
