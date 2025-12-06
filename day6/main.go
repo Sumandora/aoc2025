@@ -13,12 +13,40 @@ type data = struct {
 	ops  []string
 }
 
+func sumFold(nums []int) int {
+	n := 0
+	for _, num := range nums {
+		n += num
+	}
+	return n
+}
+
+func multFold(nums []int) int {
+	n := 1
+	for _, num := range nums {
+		n *= num
+	}
+	return n
+}
+
+func process(nums []int, op string) int {
+	switch op {
+	case "+":
+		return sumFold(nums)
+	case "*":
+		return multFold(nums)
+	default:
+		log.Fatal("Invalid operator: " + op)
+	}
+	return 0
+}
+
 func parse(input string) data {
 	lines := strings.Split(input, "\n")
 	var nums [][]int
 	for _, s := range lines[:len(lines)-1] {
 		var line []int
-		for _, field := range strings.Fields(s) {
+		for field := range strings.FieldsSeq(s) {
 			num, err := strconv.Atoi(field)
 			if err != nil {
 				log.Fatal(err)
@@ -35,25 +63,17 @@ func part1(inp data) int {
 	c := 0
 	for n := 0; n < len(inp.nums[0]); n++ {
 		op := inp.ops[n]
-		switch op {
-		case "*":
-			x := 1
-			for _, row := range inp.nums {
-				x *= row[n]
-			}
-			c += x
-		case "+":
-			x := 0
-			for _, row := range inp.nums {
-				x += row[n]
-			}
-			c += x
+		var nums []int
+		for _, row := range inp.nums {
+			nums = append(nums, row[n])
 		}
+
+		c += process(nums, op)
 	}
 	return c
 }
 
-func part2(input string) int {
+func stringToCharMatrix(input string) [][]rune {
 	lines := strings.Split(input, "\n")
 	var chars [][]rune
 	for i, line := range lines {
@@ -67,59 +87,40 @@ func part2(input string) int {
 			chars[j][i] = c
 		}
 	}
+	return chars
+}
 
-	var transposed_lines []string
+func part2(input string) int {
+	chars := stringToCharMatrix(input)
+
+	var transposedLines []string
 	for _, l := range chars {
-		s := ""
-		for _, r := range l {
-			s += string(r)
-		}
-		transposed_lines = append(transposed_lines, s)
+		transposedLines = append(transposedLines, strings.TrimSpace(string(l)))
 	}
 
-	transposed_text := ""
-
-	for _, l := range transposed_lines {
-		transposed_text += strings.TrimSpace(l) + "\n"
-	}
+	transposedText := strings.Join(transposedLines, "\n")
 
 	sol := 0
-	for group := range strings.SplitSeq(transposed_text, "\n\n") {
-		fst_line := strings.Split(group, "\n")[0]
-		op := fst_line[len(fst_line)-1]
-		var c int
-		switch op {
-		case '+':
-			c = 0
-		case '*':
-			c = 1
-		}
-		for i, line := range strings.Split(group, "\n") {
-			var line2 string
-			if i == 0 {
-				line2 = line[:len(line)-1]
-			} else {
-				line2 = line
+	for group := range strings.SplitSeq(transposedText, "\n\n") {
+		fstLine := strings.Split(group, "\n")[0]
+		op := fstLine[len(fstLine)-1]
+
+		var nums []int
+
+		for line := range strings.SplitSeq(group, "\n") {
+			numString := strings.TrimSpace(strings.TrimRight(line, "+*"))
+			if len(numString) == 0 {
+				continue
 			}
-			n, err := strconv.Atoi(strings.TrimSpace(line2))
+			n, err := strconv.Atoi(strings.TrimSpace(numString))
 			if err != nil {
-				// empty lines
-				switch op {
-				case '+':
-					n = 0
-				case '*':
-					n = 1
-				}
+				log.Fatal(err)
 			}
 
-			switch op {
-			case '+':
-				c += n
-			case '*':
-				c *= n
-			}
+			nums = append(nums, n)
 		}
-		sol += c
+
+		sol += process(nums, string(op))
 	}
 	return sol
 }
