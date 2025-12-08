@@ -79,7 +79,7 @@ type connection = struct {
 	b vec3
 }
 
-func flood(connections []connection, i vec3, acc *([]vec3)) {
+func flood(connections []connection, i vec3, acc *[]vec3) {
 	if slices.Contains(*acc, i) {
 		return
 	}
@@ -127,14 +127,15 @@ func part1(boxes []vec3) int {
 func part2(boxes []vec3) int {
 	circuits := []connection{}
 	dists := findClosest(boxes)
+	var acc []vec3
 	for {
 		pair := dists[0]
 		circuits = append(circuits, connection{pair.b, pair.a})
 		circuits = append(circuits, connection{pair.a, pair.b})
 		dists = dists[1:]
 
-		var acc []vec3
-		flood(circuits, circuits[0].a, &acc)
+		flood(circuits, pair.a, &acc)
+		flood(circuits, pair.b, &acc)
 		if len(acc) == len(boxes) {
 			return pair.a.x * pair.b.x
 		}
