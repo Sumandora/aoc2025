@@ -76,7 +76,6 @@ func parse(input string) []machine {
 func bfs(depth int, machine *machine, states [][]bool) int {
 	found := false
 	for _, state := range states {
-		// fmt.Println(depth, state)
 		if slices.Equal(state, machine.wantedState) {
 			found = true
 			break
