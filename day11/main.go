@@ -19,8 +19,6 @@ func parse(input string) connections {
 	return conns
 }
 
-var cache = make(map[string]int)
-
 func dfs(cache *map[string]int, conns *connections, curr string) int {
 	if curr == "out" {
 		return 1
